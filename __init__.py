@@ -1,10 +1,14 @@
-"""New IBM library to handle AS400 sessions with BC06 window
+"""
+IBM library to handle AS400 sessions with BC06 window
+Author: Dhruvin Shah
+"""
 
-highly customizable with only help of InstanceAction and subclassing
-InstanceHandler
-
-Tow modules are available, core and application_system"""
-__version__ = '1.0'
+__version__ = '2.0'
 
 from .core import Instance, InstanceActions
-from .exceptions import InvalidSerial, InvalidSessionName, ScreenTransition
+from .exceptions import InvalidSessionName, ScreenTransition, WindowNotFound
+
+__all__ = [
+    'Instance', 'InstanceActions', 'InvalidSessionName', 'ScreenTransition',
+    'WindowNotFound'
+]
