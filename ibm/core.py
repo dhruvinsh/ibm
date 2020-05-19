@@ -14,7 +14,7 @@ class Instance(object):
     provided."""
 
     def __init__(self, session):
-        """Initialize AS400 session connection and PS and OIA as well,
+        """Initialize AS400 session connection and PS and OIA as well.
         param: session: alphabetical instance name required like 'A', 'B'"""
         if (
             not isinstance(session, str)
@@ -43,16 +43,16 @@ class Instance(object):
         return "<Session: {}>".format(self.session_desc)
 
     def _input_inhibited(self):
-        """Get input inhibited status from AS400"""
+        """Get input inhibited status from AS400."""
         return self.oia.InputInhibited
 
     def _input_wait(self, second):
-        """Wait for input to be ready
-        param: second: max wait time in second before raising the error"""
+        """Wait for input to be ready.
+        param: second: max wait time in second before raising the error."""
         self.oia.WaitForInputReady(second * 1000)
 
     def _key_event_setup(self, wait):
-        """Get instance ready for the read/write task"""
+        """Get instance ready for the read/write task."""
         self._input_wait(wait)
         if self._input_inhibited() != 0:
             self.ps.SendKeys("[ENTER]")
@@ -62,32 +62,40 @@ class Instance(object):
         """Screen is divided in two axis: X and Y. For a given length, pass
         x, y location to read AS400 screen. Default word length is set to 1.
 
-        param: row: x axis location
-               column: y axis location
-               length: length of alphabets that need to be read from screen
-               wait: max wait time, before raising the error, default is 2 sec.
-        return: stripped string AS400 instance"""
+        :param row: x axis location.
+        :param column: y axis location.
+        :param length: length of alphabets that need to be read from screen.
+        :param wait: max wait time, before raising the error, default is 2 sec.
+
+        :return: stripped string from AS400 instance."""
         self._key_event_setup(wait)
         return self.ps.GetText(row, column, length).encode("UTF-8").strip()
 
     def set_text(self, text, row, column):
         """Set text to a specified location on AS400 screen.
-        param: text: string that needs to be set
-               row: location of x axis
-               column: location of y axis"""
+        :param text: string that needs to be set.
+        :param row: location of x axis.
+        :param column: location of y axis.
+
+        :return: None"""
         self._key_event_setup()
         self.ps.SetText(text, row, column)
 
     def send_keys(self, key):
         """Send keystrokes to AS400 screen.
-        param: key: Mnemonic keystrokes that need to be send to the session
 
-        List of these keystrokes can be found here: https://ibm.co/31yC100"""
+        :param key: Mnemonic keystrokes that need to be send to the session.
+                    List of these keystrokes can be found at
+                    https://ibm.co/31yC100
+
+        :return: None"""
         self._key_event_setup()
         self.ps.SendKeys(key)
 
     def wait(self, seconds):
-        """For given seconds make pointer sleep implicitly"""
+        """For given seconds make pointer sleep implicitly.
+
+        :param seconds: time in seconds to wait."""
         self.ps.Wait(int(seconds * 1000))
 
 
@@ -97,11 +105,14 @@ class Screen:
     Example would be a cursor location for a given screen.
 
     Various descriptive attributes:
+
     AddCursorPos: Sets the cursor position for the screen description to the
                   given position.
+
     AddString: Adds a string at the given location to the screen description.
 
     Usage:
+
     >>> cur_screen = Screen()
     >>> cur_screen.describe("cursor", x=10, y=20)
     >>> cur_screen.wait(5)
@@ -113,17 +124,22 @@ class Screen:
     >>> "wait up to 5 seconds for Exit (case sensitive) on (10, 10) location"
 
 
-    *** below descriptions are available as direct use,
+    Below are extra descriptions method availabel at users despose.
+
     AddNumFields: Adds the number of fields to the screen description.
+
     AddNumInputFields: Adds the number of fields to the screen description.
+
     AddOIAInhibitStatus: Sets the type of OIA monitoring for the screen
                          description.
+
     AddStringInRect: Adds a string in the given rectangle to the screen
                      description.
+
     Clear: Removes all description elements from the screen description."""
 
     def __init__(self, instance):
-        """Initialize screen objects, description added by `describe` method"""
+        """Initialize screen objects, description added by `describe` method."""
         self.instance = instance
         self.screen = CreateObject("PCOMM.autECLScreenDesc")
         self.desc = {}
@@ -134,12 +150,15 @@ class Screen:
     def describe(self, dtype, x, y, **kwargs):
         """allows to describe the screen object. allowed methods are
         AddCursorPos and AddString.
-        param: dtype: descriptive object type: cursor or text
-               x: x-axis location
-               y: y-axis location
-               kwargs: usable in case of text description. Acceptable parameter
+
+        :param dtype: descriptive object type: cursor or text.
+        :param x: x-axis location.
+        :param y: y-axis location.
+        :param kwargs: usable in case of text description. Acceptable parameter
                        are string: str and case: bool.
-                       by default text matching is not case sensitive"""
+                       by default text matching is not case sensitive
+
+        :return: None"""
         valid_desc = ["cursor", "text"]
         if dtype not in valid_desc:
             raise ValueError("Only cursor or text object are allowed.")
@@ -154,7 +173,10 @@ class Screen:
             self.screen.AddString(string, x, y, case)
 
     def wait(self, second):
-        """for given screen object wait for specified time
-        param: instance: pass the instance object
-               second: wait time in second"""
+        """For given screen object wait for specified time.
+
+        :param instance: pass the instance object.
+        :param second: wait time in second.
+
+        :return: None"""
         return self.instance.ps.WaitForScreen(self.screen, second * 1000)
