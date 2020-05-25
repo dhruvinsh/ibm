@@ -32,11 +32,11 @@ From the above base, more useful utility class is provided, its usage is below,
 from ibm import Instance
 
 instance = Instance(session='A')
-print(instance.gettext(row=4, column=2, length=3))
+print(instance.get_text(row=4, column=2, length=3))
 # "IPL"
 instance.wait(1)
 # block execution for 1 second
-instance.sendkeys(key='[pf16]')
+instance.send_keys(key='[pf16]')
 # above command send F16 key press and window get change
 ```
 
