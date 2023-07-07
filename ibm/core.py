@@ -71,17 +71,26 @@ class Instance(object):
         self._key_event_setup(wait)
         return self.ps.GetText(row, column, length).encode("UTF-8").strip()
 
-    def set_text(self, text, row, column):
+    def set_text(self, text, row, column, wait=60):
         """Set text to a specified location on AS400 screen.
         :param text: string that needs to be set.
         :param row: location of x axis.
         :param column: location of y axis.
 
         :return: None"""
-        self._key_event_setup()
+        self._key_event_setup(wait)
         self.ps.SetText(text, row, column)
 
-    def send_keys(self, key):
+    def set_cursor(self, row, column, wait=60):
+        """Set cursor to a specified location on AS400 screen.
+        :param row: location of x axis.
+        :param column: location of y axis.
+
+        :return: None"""
+        self._key_event_setup(wait)
+        self.ps.SetCursorPos(row, column)
+
+    def send_keys(self, key, wait=60):
         """Send keystrokes to AS400 screen.
 
         :param key: Mnemonic keystrokes that need to be send to the session.
@@ -89,7 +98,7 @@ class Instance(object):
                     https://ibm.co/31yC100
 
         :return: None"""
-        self._key_event_setup()
+        self._key_event_setup(wait)
         self.ps.SendKeys(key)
 
     def wait(self, seconds):
@@ -98,6 +107,23 @@ class Instance(object):
         :param seconds: time in seconds to wait."""
         self.ps.Wait(int(seconds * 1000))
 
+    def waitForCursor(self, row, column, seconds=60):
+        """Wait for the cursor to be in a given position.
+        Afert the given seconds, timeout.
+
+        :param row: Row where the cursor should be.
+        :param column: Column where the cursor should be.
+        :param seconds: time in seconds to wait."""
+        return self.ps.WaitForCursor(row, column, int(seconds * 1000))
+
+    def waitForString(self, string, row, column, seconds=60):
+        """Wait for the cursor to be in a given position.
+        Afert the given seconds, timeout.
+
+        :param row: Row where the cursor should be.
+        :param column: Column where the cursor should be.
+        :param seconds: time in seconds to wait."""
+        return self.ps.WaitForString(string, row, column, int(seconds * 1000))
 
 class Screen:
     """Allow to create screen objects For AS400 session. Screen objects are
