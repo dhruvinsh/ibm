@@ -8,7 +8,6 @@ from comtypes.client import CreateObject
 
 from .exceptions import InvalidSessionName, WindowNotFound
 
-
 class Instance(object):
     """A wrapper to AS400 session. Primitive methods like read, write is
     provided."""
@@ -58,7 +57,7 @@ class Instance(object):
             self.ps.SendKeys("[ENTER]")
             self._input_wait(wait)
 
-    def get_text(self, row, column, length=1, wait=2):
+    def get_text(self, row, column, length=1, wait=60):
         """Screen is divided in two axis: X and Y. For a given length, pass
         x, y location to read AS400 screen. Default word length is set to 1.
 
@@ -69,7 +68,21 @@ class Instance(object):
 
         :return: stripped string from AS400 instance."""
         self._key_event_setup(wait)
-        return self.ps.GetText(row, column, length).encode("UTF-8").strip()
+        return self.ps.GetText(row, column, length).encode("UTF-8")
+
+    def get_text_rect(self, startRow, startColumn, endRow, endColumn, wait=60):
+        """Screen is divided in two axis: X and Y. For a given length, pass
+        x, y location to read AS400 screen. Default word length is set to 1.
+
+        :param startRow: start x axis location.
+        :param startColumn: start y axis location.
+        :param endRow: start x axis location.
+        :param endColumn: start y axis location.
+        :param wait: max wait time, before raising the error, default is 2 sec.
+
+        :return: stripped string from AS400 instance."""
+        self._key_event_setup(wait)
+        return self.ps.GetTextRect(startRow, startColumn, endRow, endColumn).encode("UTF-8")
 
     def set_text(self, text, row, column, wait=60):
         """Set text to a specified location on AS400 screen.
@@ -78,7 +91,7 @@ class Instance(object):
         :param column: location of y axis.
 
         :return: None"""
-        self._key_event_setup(wait)
+        self._key_event_setup(wait)   #no tenia ningún parámetro
         self.ps.SetText(text, row, column)
 
     def set_cursor(self, row, column, wait=60):
@@ -87,7 +100,7 @@ class Instance(object):
         :param column: location of y axis.
 
         :return: None"""
-        self._key_event_setup(wait)
+        self._key_event_setup(wait)   #no tenia ningún parámetro
         self.ps.SetCursorPos(row, column)
 
     def send_keys(self, key, wait=60):
@@ -124,6 +137,19 @@ class Instance(object):
         :param column: Column where the cursor should be.
         :param seconds: time in seconds to wait."""
         return self.ps.WaitForString(string, row, column, int(seconds * 1000))
+
+    def search_text(self, string='', dir=1, row=1, column=1, wait=1):
+        """Searches for the first ocurrence of the string.
+
+        :param string: text to search.
+        :param dir: 1: forward, 2: backward.
+        :param row: row from where to start the search.
+        :param column: column from where to start the search.
+        :param second: wait time in second.
+
+        :return: None"""
+        self._key_event_setup(wait)  
+        return self.ps.SearchText(string, dir, row, column)
 
 class Screen:
     """Allow to create screen objects For AS400 session. Screen objects are
