@@ -103,6 +103,20 @@ class Instance(object):
         self._key_event_setup(wait)   #no tenia ningún parámetro
         self.ps.SetCursorPos(row, column)
 
+    def get_cursor_pos_row(self, wait=60):
+        """Get cursor row on AS400 screen.
+
+        :return: Cursor row"""
+        self._key_event_setup(wait)   #no tenia ningún parámetro      
+        return self.ps.CursorPosRow
+
+    def get_cursor_pos_col(self, wait=60):
+        """Get cursor row on AS400 screen.
+
+        :return: Cursor col"""
+        self._key_event_setup(wait)   #no tenia ningún parámetro      
+        return self.ps.CursorPosCol
+
     def send_keys(self, key, wait=60):
         """Send keystrokes to AS400 screen.
 
